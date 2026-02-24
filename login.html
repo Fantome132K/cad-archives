@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAD — Accès Restreint</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060d1a;
+            --surface: #0a1628;
+            --border: #1a3a5c;
+            --cyan: #4fc3f7;
+            --cyan-dim: #1a4a6b;
+            --text: #c8dff0;
+            --text-dim: #4a6a8a;
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Scanlines */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.15) 2px,
+                rgba(0,0,0,0.15) 4px
+            );
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Grille de fond */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,195,247,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,195,247,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 420px;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo svg {
+            width: 80px;
+            opacity: 0.9;
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.9; }
+            50% { opacity: 0.6; }
+        }
+
+        .logo-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.3em;
+            margin-top: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 2.5rem;
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .card-header {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-header span:last-child {
+            color: var(--cyan);
+            animation: blink 2s step-end infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .field {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        input {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 1px var(--cyan-dim);
+        }
+
+        button {
+            width: 100%;
+            background: transparent;
+            border: 1px solid var(--cyan);
+            color: var(--cyan);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            padding: 0.85rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        button:hover {
+            background: var(--cyan);
+            color: var(--bg);
+        }
+
+        button::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.4s;
+        }
+
+        button:hover::after {
+            left: 100%;
+        }
+
+        .error {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--danger);
+            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            border: 1px solid var(--danger);
+            background: rgba(239,68,68,0.05);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">
+            <svg viewBox="0 0 200 100" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <!-- C -->
+                <path d="M30 15 A35 35 0 1 0 30 85 L30 70 A20 20 0 1 1 30 30 Z"/>
+                <circle cx="28" cy="50" r="6" fill="#060d1a"/>
+                <!-- A -->
+                <polygon points="80,15 100,85 90,85 80,50 70,85 60,85"/>
+                <line x1="67" y1="60" x2="93" y2="60" stroke="#060d1a" stroke-width="8"/>
+                <!-- D -->
+                <rect x="120" y="15" width="8" height="70"/>
+                <rect x="155" y="15" width="8" height="70"/>
+                <path d="M128 15 Q175 15 175 50 Q175 85 128 85" fill="none" stroke="white" stroke-width="8"/>
+            </svg>
+            <div class="logo-label">Archives Centrales — Accès Restreint</div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span>Terminal d'authentification</span>
+                <span>■ EN LIGNE</span>
+            </div>
+
+            {% if error %}
+            <div class="error">⚠ {{ error }}</div>
+            {% endif %}
+
+            <form method="POST" action="/auth/login-page">
+                <div class="field">
+                    <label>Identifiant agent</label>
+                    <input type="text" name="username" autocomplete="off" autofocus>
+                </div>
+                <div class="field">
+                    <label>Code d'accès</label>
+                    <input type="password" name="password">
+                </div>
+                <button type="submit">Authentification →</button>
+            </form>
+        </div>
+
+        <div class="footer">
+            CAD CORPORATION © — SYSTÈME CLASSIFIÉ — ACCÈS NON AUTORISÉ INTERDIT
+        </div>
+    </div>
+</body>
+</html>
