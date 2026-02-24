@@ -1,13 +1,20 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Depends
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from database import Base, engine
+from database import Base, engine, SessionLocal
 from route import auth, upload, files
 from apscheduler.schedulers.background import BackgroundScheduler
 from cleanup import delete_expired_files
 
 Base.metadata.create_all(bind=engine)
+
+def get_db_main():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
@@ -28,8 +35,30 @@ def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/dashboard", response_class=HTMLResponse)
-def dashboard(request: Request):
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+def dashboard(request: Request, db=Depends(get_db_main)):
+    token = request.cookies.get("token")
+    if not token:
+        return RedirectResponse(url="/login")
+    try:
+        from auth import decode_token
+        user_data = decode_token(token)
+    except:
+        return RedirectResponse(url="/login")
+    
+    from database import File as FileModel
+    from datetime import datetime
+    files = db.query(FileModel).filter(
+        FileModel.uploaded_by == user_data["sub"]
+    ).all()
+    
+    now = datetime.utcnow()
+    return templates.TemplateResponse("dashboard.html", {
+        "request": request,
+        "username": user_data["sub"],
+        "role": user_data["role"],
+        "files": files,
+        "now": now
+    })
 
 
 @app.get("/")

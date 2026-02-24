@@ -2,27 +2,563 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>CAD — Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAD — Archives Centrales</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --bg: #060d1a;
+            --surface: #0a1628;
+            --border: #1a3a5c;
+            --cyan: #4fc3f7;
+            --cyan-dim: #1a4a6b;
+            --text: #c8dff0;
+            --text-dim: #4a6a8a;
+            --danger: #ef4444;
+            --green: #22c55e;
+            --orange: #f97316;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: #060d1a;
-            color: #c8dff0;
-            font-family: 'Share Tech Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,195,247,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,195,247,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* NAVBAR */
+        nav {
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
-        h1 { color: #4fc3f7; letter-spacing: 0.2em; }
-        p { color: #4a6a8a; margin-top: 1rem; font-size: 0.8rem; }
+
+        .nav-logo img {
+            height: 28px;
+            opacity: 0.9;
+        }
+
+        .nav-info {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+            text-align: right;
+        }
+
+        .nav-info .agent {
+            color: var(--cyan);
+            font-size: 0.7rem;
+        }
+
+        .nav-info .role-badge {
+            display: inline-block;
+            padding: 0.1em 0.5em;
+            border: 1px solid var(--border);
+            font-size: 0.55rem;
+            margin-left: 0.5em;
+            color: var(--text-dim);
+            vertical-align: middle;
+        }
+
+        .nav-info .role-badge.admin {
+            border-color: var(--cyan);
+            color: var(--cyan);
+        }
+
+        /* MAIN */
+        main {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* RAPPORT */
+        .rapport {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .stat-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.8rem;
+            color: var(--cyan);
+            line-height: 1;
+        }
+
+        .stat-sub {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            margin-top: 0.4rem;
+            opacity: 0.6;
+        }
+
+        /* FLAVOR */
+        .flavor {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            border-left: 2px solid var(--border);
+            padding: 0.5rem 1rem;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        /* UPLOAD */
+        .section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .upload-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .field label {
+            display: block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.4rem;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.85rem;
+            padding: 0.6rem 0.75rem;
+            outline: none;
+        }
+
+        input[type="text"]:focus, select:focus {
+            border-color: var(--cyan);
+        }
+
+        select option { background: var(--bg); }
+
+        .upload-zone {
+            border: 1px dashed var(--border);
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+            position: relative;
+        }
+
+        .upload-zone:hover, .upload-zone.drag {
+            border-color: var(--cyan);
+            background: rgba(79,195,247,0.03);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-zone-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+        }
+
+        .upload-zone-text span {
+            display: block;
+            font-size: 0.55rem;
+            margin-top: 0.5rem;
+            opacity: 0.5;
+        }
+
+        /* SCAN ANIMATION */
+        .scan-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(6,13,26,0.85);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .scan-overlay.active {
+            display: flex;
+        }
+
+        .scan-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--cyan);
+            letter-spacing: 0.3em;
+            animation: flicker 0.5s infinite;
+        }
+
+        .scan-bar {
+            width: 300px;
+            height: 2px;
+            background: var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--cyan);
+            animation: scan 1.5s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        /* FILES */
+        .files-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .file-row {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0.75rem 1rem;
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            align-items: center;
+            gap: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .file-row:hover {
+            border-color: var(--cyan-dim);
+        }
+
+        .file-row.expiring {
+            border-color: rgba(239,68,68,0.3);
+        }
+
+        .file-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text);
+        }
+
+        .file-name span {
+            display: block;
+            font-size: 0.58rem;
+            color: var(--text-dim);
+            margin-top: 0.2rem;
+        }
+
+        .file-expiry {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+        }
+
+        .file-expiry.soon {
+            color: var(--danger);
+        }
+
+        .file-expiry.permanent {
+            color: var(--green);
+        }
+
+        .btn {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.1em;
+            padding: 0.35rem 0.75rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .btn.copied { border-color: var(--green); color: var(--green); }
+
+        .empty {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            padding: 2rem;
+            opacity: 0.4;
+        }
     </style>
 </head>
 <body>
-    <div>
-        <h1>ACCÈS AUTORISÉ</h1>
-        <p>Dashboard en cours de construction — Division Archives Centrales</p>
+
+<div class="scan-overlay" id="scanOverlay">
+    <div class="scan-text">TRANSFERT EN COURS — NE PAS INTERROMPRE</div>
+    <div class="scan-bar"></div>
+    <div class="scan-text" style="font-size:0.6rem; opacity:0.5;">Analyse ADN du fichier... Confinement vérifié...</div>
+</div>
+
+<nav>
+    <div class="nav-logo">
+        <img src="/static/cadcrwh.png" alt="CAD">
     </div>
+    <div class="nav-info">
+        <div>
+            <span class="agent">{{ username }}</span>
+            <span class="role-badge {% if role == 'admin' %}admin{% endif %}">{{ role }}</span>
+        </div>
+        <div style="margin-top:0.3rem;">Archives Centrales — Accès Autorisé</div>
+    </div>
+</nav>
+
+<main>
+    <!-- RAPPORT -->
+    <div class="rapport">
+        <div class="stat-card">
+            <div class="stat-label">Fichiers actifs</div>
+            <div class="stat-value">{{ files | length }}</div>
+            <div class="stat-sub">Tous statuts confondus</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Expiration imminente</div>
+            <div class="stat-value" style="color: var(--danger);">
+                {{ files | selectattr('expires_at') | list | length }}
+            </div>
+            <div class="stat-sub">Dans moins de 24h — Intervention recommandée</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Statut système</div>
+            <div class="stat-value" style="font-size:1rem; padding-top:0.4rem;">EN LIGNE</div>
+            <div class="stat-sub">Aucune anomalie détectée. Pour l'instant.</div>
+        </div>
+    </div>
+
+    <!-- FLAVOR -->
+    <div class="flavor" id="flavorMsg"></div>
+
+    <!-- UPLOAD -->
+    <div class="section-title">— Transfert de fichier</div>
+    <div class="upload-card">
+        <form id="uploadForm">
+            <div class="upload-form">
+                <div class="field">
+                    <label>Dossier cible</label>
+                    <input type="text" id="folder" placeholder="ex: operation-chimere" required>
+                </div>
+                <div class="field">
+                    <label>Durée de conservation</label>
+                    <select id="expiration">
+                        <option value="24h">24 heures</option>
+                        <option value="7d" selected>7 jours</option>
+                        <option value="30d">30 jours</option>
+                        {% if role == 'admin' %}
+                        <option value="permanent">Permanent</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="fileInput" accept="image/*,video/mp4,video/webm">
+                <div class="upload-zone-text">
+                    Déposer un fichier ou cliquer pour sélectionner
+                    <span>Images : jpg, png, webp, gif — Vidéos : mp4, webm</span>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- FILES -->
+    <div class="section-title">— Fichiers archivés</div>
+    <div class="files-list">
+        {% if files %}
+            {% for f in files %}
+            {% set delta = (f.expires_at - now).total_seconds() if f.expires_at else None %}
+            <div class="file-row {% if delta and delta < 86400 %}expiring{% endif %}">
+                <div class="file-name">
+                    {{ f.original_name }}
+                    <span>{{ f.folder }} — {{ f.filetype }}</span>
+                </div>
+                <div class="file-expiry {% if not f.expires_at %}permanent{% elif delta and delta < 86400 %}soon{% endif %}">
+                    {% if not f.expires_at %}
+                        Permanent
+                    {% else %}
+                        Exp. {{ f.expires_at.strftime('%d/%m %H:%M') }}
+                    {% endif %}
+                </div>
+                <button class="btn" onclick="copyLink('/images/{{ f.folder }}/{{ f.filename }}', this)">
+                    Copier lien
+                </button>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty">Aucun fichier archivé — Division Archives en attente de données</div>
+        {% endif %}
+    </div>
+</main>
+
+<script>
+    // Flavor messages
+    const flavors = [
+        "Aucune anomalie détectée dans le secteur. Surveillance maintenue.",
+        "Rapport journalier : 3 sujets en cours d'analyse. Résultats attendus sous 48h.",
+        "Protocole Éclypse actif. Accès restreint aux niveaux inférieurs.",
+        "Rappel : Ne pas nourrir les sujets de catégorie C après 22h.",
+        "Mise à jour système effectuée. Les cookies quantiques ont été recalibrés.",
+        "Alerte niveau 0 : Quelqu'un a encore mangé le repas de quelqu'un d'autre au réfrigérateur de la base.",
+        "Tous les sujets sont confinés. Enfin, normalement.",
+    ];
+    document.getElementById('flavorMsg').textContent =
+        flavors[Math.floor(Math.random() * flavors.length)];
+
+    // Copy link
+    function copyLink(path, btn) {
+        const url = window.location.origin + path;
+        navigator.clipboard.writeText(url).then(() => {
+            btn.textContent = 'Copié ✓';
+            btn.classList.add('copied');
+            setTimeout(() => {
+                btn.textContent = 'Copier lien';
+                btn.classList.remove('copied');
+            }, 2000);
+        });
+    }
+
+    // Upload
+    const fileInput = document.getElementById('fileInput');
+    const scanOverlay = document.getElementById('scanOverlay');
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const folder = document.getElementById('folder').value;
+        const expiration = document.getElementById('expiration').value;
+
+        if (!folder) {
+            alert('Spécifiez un dossier cible.');
+            return;
+        }
+
+        scanOverlay.classList.add('active');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(`/files/upload?folder=${folder}&expiration=${expiration}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                scanOverlay.classList.remove('active');
+                alert('Erreur lors du transfert.');
+            }
+        } catch(e) {
+            scanOverlay.classList.remove('active');
+            alert('Erreur réseau.');
+        }
+    });
+
+    // Drag and drop
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag');
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
+</script>
 </body>
 </html>
