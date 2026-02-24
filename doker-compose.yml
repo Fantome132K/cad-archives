@@ -1,0 +1,9 @@
+services:
+  cad-archives:
+    build: .
+    container_name: cad-archives
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/uploads:/app/uploads
