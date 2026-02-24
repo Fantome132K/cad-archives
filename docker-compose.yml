@@ -7,3 +7,4 @@ services:
       - "8001:8000"
     volumes:
       - .:/uploads:/app/uploads
+      - ./data:/app/data
