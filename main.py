@@ -27,6 +27,10 @@ app.include_router(files.router)
 def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
 
 @app.get("/")
 async def root():
