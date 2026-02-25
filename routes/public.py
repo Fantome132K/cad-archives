@@ -42,13 +42,15 @@ def get_or_create_session(request: Request, response: Response, db: Session = De
     return session_id
 
 @router.get("/", response_class=HTMLResponse)
-def index(
-    request: Request,
-    response: Response,
-    db: Session = Depends(get_db)
-):
-    session_id = get_or_create_session(request, response, db)
+def index(request: Request, db: Session = Depends(get_db)):
+    session_id = request.cookies.get("cad_session")
     
+    if not session_id:
+        session_id = uuid.uuid4().hex
+        db_session = SessionModel(session_id=session_id)
+        db.add(db_session)
+        db.commit()
+
     token = request.cookies.get("token")
     user = None
     if token:
@@ -63,12 +65,21 @@ def index(
         FileModel.is_quick_drop == True
     ).all()
 
-    return templates.TemplateResponse("index.html", {
+    response = templates.TemplateResponse("index.html", {
         "request": request,
         "session_id": session_id,
         "user": user,
         "files": files
     })
+    
+    response.set_cookie(
+        key="cad_session",
+        value=session_id,
+        max_age=60 * 60 * 24 * 30,
+        httponly=True
+    )
+    
+    return response
 
 @router.get("/session/{session_id}", response_class=HTMLResponse)
 def session_page(
