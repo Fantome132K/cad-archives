@@ -74,3 +74,40 @@ def serve_folder(folder: str, db: Session = Depends(get_db)):
             for f in files
         ]
     }
+@router.delete("/files/{file_id}")
+def delete_file(file_id: int, request: Request, db: Session = Depends(get_db)):
+    token = request.cookies.get("token")
+    if not token:
+        raise HTTPException(status_code=401, detail="Non autorisé")
+    try:
+        from auth import decode_token
+        user = decode_token(token)
+    except:
+        raise HTTPException(status_code=401, detail="Token invalide")
+
+    file = db.query(FileModel).filter(FileModel.id == file_id).first()
+    if not file:
+        raise HTTPException(status_code=404, detail="Fichier introuvable")
+
+    if file.uploaded_by != user["sub"] and user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Non autorisé")
+
+    # Supprime le fichier physique
+    if file.is_quick_drop:
+        path = os.path.join(UPLOAD_DIR_QUICKDROP, file.filename)
+    else:
+        path = os.path.join(UPLOAD_DIR_CLASSIFIED, file.folder, file.filename)
+
+    if os.path.exists(path):
+        os.remove(path)
+
+    db.delete(file)
+    db.commit()
+
+        # Supprime le dossier physique s'il est vide
+    if not file.is_quick_drop:
+        folder_path = os.path.join(UPLOAD_DIR_CLASSIFIED, file.folder)
+        if os.path.exists(folder_path) and not os.listdir(folder_path):
+            os.rmdir(folder_path)
+
+    return {"ok": True}
