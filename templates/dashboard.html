@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAD — Archives Centrales</title>
+    <title>CAD — Classified</title>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -45,7 +45,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 1rem 2rem;
+            padding: 0.75rem 2rem;
             border-bottom: 1px solid var(--border);
             background: var(--surface);
             position: sticky;
@@ -53,111 +53,79 @@
             z-index: 10;
         }
 
-        .nav-logo img {
-            height: 28px;
-            opacity: 0.9;
-        }
+        .nav-left { display: flex; align-items: center; gap: 1.5rem; }
+        .nav-logo img { height: 24px; opacity: 0.9; }
 
-        .nav-info {
+        .nav-stats {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             color: var(--text-dim);
-            letter-spacing: 0.15em;
-            text-align: right;
+            letter-spacing: 0.1em;
         }
 
-        .nav-info .agent {
-            color: var(--cyan);
-            font-size: 0.7rem;
-        }
+        .nav-stats span { color: var(--cyan); margin: 0 0.3em; }
+        .nav-stats .warn { color: var(--danger); }
 
-        .nav-info .role-badge {
-            display: inline-block;
-            padding: 0.1em 0.5em;
+        .nav-right { display: flex; align-items: center; gap: 1rem; }
+
+        .nsfw-toggle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58rem;
+            color: var(--text-dim);
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            padding: 0.3rem 0.6rem;
             border: 1px solid var(--border);
-            font-size: 0.55rem;
-            margin-left: 0.5em;
-            color: var(--text-dim);
-            vertical-align: middle;
+            transition: all 0.2s;
+            user-select: none;
         }
 
-        .nav-info .role-badge.admin {
-            border-color: var(--cyan);
-            color: var(--cyan);
+        .nsfw-toggle:hover { border-color: var(--orange); color: var(--orange); }
+        .nsfw-toggle.active { border-color: var(--orange); color: var(--orange); background: rgba(249,115,22,0.05); }
+
+        .nav-agent {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
         }
+
+        .nav-agent span { color: var(--cyan); }
+
+        .btn-logout {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+
+        .btn-logout:hover { opacity: 1; color: var(--danger); }
 
         /* MAIN */
         main {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 2rem;
             position: relative;
             z-index: 1;
         }
 
-        /* RAPPORT */
-        .rapport {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            padding: 1.25rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-        }
-
-        .stat-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.58rem;
-            color: var(--text-dim);
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 1.8rem;
-            color: var(--cyan);
-            line-height: 1;
-        }
-
-        .stat-sub {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.55rem;
-            color: var(--text-dim);
-            margin-top: 0.4rem;
-            opacity: 0.6;
-        }
-
         /* FLAVOR */
         .flavor {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.62rem;
+            font-size: 0.6rem;
             color: var(--text-dim);
             border-left: 2px solid var(--border);
-            padding: 0.5rem 1rem;
-            margin-bottom: 2rem;
-            opacity: 0.5;
+            padding: 0.4rem 1rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.4;
         }
 
-        /* UPLOAD */
+        /* UPLOAD PRINCIPAL */
         .section-title {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.65rem;
+            font-size: 0.62rem;
             color: var(--text-dim);
             letter-spacing: 0.25em;
             text-transform: uppercase;
@@ -169,25 +137,25 @@
         .upload-card {
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 1.5rem;
+            padding: 1.25rem;
             margin-bottom: 2rem;
         }
 
-        .upload-form {
+        .upload-row {
             display: grid;
-            grid-template-columns: 1fr 1fr auto;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 1rem;
-            align-items: end;
+            margin-bottom: 1rem;
         }
 
         .field label {
             display: block;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
+            font-size: 0.58rem;
             color: var(--text-dim);
             letter-spacing: 0.2em;
             text-transform: uppercase;
-            margin-bottom: 0.4rem;
+            margin-bottom: 0.35rem;
         }
 
         input[type="text"], select {
@@ -196,30 +164,26 @@
             border: 1px solid var(--border);
             color: var(--text);
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.85rem;
-            padding: 0.6rem 0.75rem;
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
             outline: none;
         }
 
-        input[type="text"]:focus, select:focus {
-            border-color: var(--cyan);
-        }
-
+        input[type="text"]:focus, select:focus { border-color: var(--cyan); }
         select option { background: var(--bg); }
 
         .upload-zone {
             border: 1px dashed var(--border);
-            padding: 2rem;
+            padding: 1.5rem;
             text-align: center;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 1rem;
             position: relative;
+            transition: all 0.2s;
         }
 
         .upload-zone:hover, .upload-zone.drag {
             border-color: var(--cyan);
-            background: rgba(79,195,247,0.03);
+            background: rgba(79,195,247,0.02);
         }
 
         .upload-zone input[type="file"] {
@@ -233,24 +197,17 @@
 
         .upload-zone-text {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.68rem;
             color: var(--text-dim);
-            letter-spacing: 0.15em;
+            letter-spacing: 0.1em;
         }
 
-        .upload-zone-text span {
-            display: block;
-            font-size: 0.55rem;
-            margin-top: 0.5rem;
-            opacity: 0.5;
-        }
-
-        /* SCAN ANIMATION */
+        /* SCAN */
         .scan-overlay {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(6,13,26,0.85);
+            background: rgba(6,13,26,0.9);
             z-index: 50;
             align-items: center;
             justify-content: center;
@@ -258,9 +215,7 @@
             gap: 1.5rem;
         }
 
-        .scan-overlay.active {
-            display: flex;
-        }
+        .scan-overlay.active { display: flex; }
 
         .scan-text {
             font-family: 'Share Tech Mono', monospace;
@@ -287,93 +242,172 @@
             animation: scan 1.5s ease-in-out infinite;
         }
 
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
+        @keyframes scan { 0% { left: -100%; } 100% { left: 100%; } }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
 
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
+        /* ACCORDION */
+        .folder-list { display: flex; flex-direction: column; gap: 0.5rem; }
 
-        /* FILES */
-        .files-list {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-
-        .file-row {
+        .folder-item {
             background: var(--surface);
             border: 1px solid var(--border);
-            padding: 0.75rem 1rem;
-            display: grid;
-            grid-template-columns: 1fr auto auto auto;
-            align-items: center;
-            gap: 1rem;
+            overflow: hidden;
             transition: border-color 0.2s;
         }
 
-        .file-row:hover {
-            border-color: var(--cyan-dim);
+        .folder-item.open { border-color: var(--cyan-dim); }
+
+        .folder-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1.25rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
         }
 
-        .file-row.expiring {
-            border-color: rgba(239,68,68,0.3);
-        }
+        .folder-header:hover { background: rgba(79,195,247,0.02); }
 
-        .file-name {
+        .folder-name {
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.75rem;
+            font-size: 0.78rem;
             color: var(--text);
-        }
-
-        .file-name span {
-            display: block;
-            font-size: 0.58rem;
-            color: var(--text-dim);
-            margin-top: 0.2rem;
-        }
-
-        .file-expiry {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
-            color: var(--text-dim);
-            white-space: nowrap;
-        }
-
-        .file-expiry.soon {
-            color: var(--danger);
-        }
-
-        .file-expiry.permanent {
-            color: var(--green);
-        }
-
-        .btn {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.6rem;
             letter-spacing: 0.1em;
-            padding: 0.35rem 0.75rem;
+        }
+
+        .folder-meta {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+        }
+
+        .folder-count { color: var(--cyan); }
+
+        .folder-arrow {
+            transition: transform 0.2s;
+            opacity: 0.4;
+        }
+
+        .folder-item.open .folder-arrow { transform: rotate(180deg); }
+
+        .folder-body {
+            display: none;
+            padding: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .folder-item.open .folder-body { display: block; }
+
+        /* MASONRY */
+        .masonry {
+            columns: 4 180px;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .masonry-item {
+            break-inside: avoid;
+            margin-bottom: 0.75rem;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .masonry-item img {
+            width: 100%;
+            display: block;
+            transition: filter 0.3s;
+        }
+
+        .masonry-item.nsfw-blur img { filter: blur(20px); }
+
+        .masonry-item-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(6,13,26,0.7);
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: flex-end;
+            padding: 0.5rem;
+            gap: 0.3rem;
+        }
+
+        .masonry-item:hover .masonry-item-overlay { opacity: 1; }
+
+        .btn-tiny {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            padding: 0.2rem 0.5rem;
             border: 1px solid var(--border);
-            background: transparent;
+            background: var(--surface);
             color: var(--text-dim);
             cursor: pointer;
             transition: all 0.2s;
+            text-decoration: none;
             white-space: nowrap;
         }
 
-        .btn:hover { border-color: var(--cyan); color: var(--cyan); }
-        .btn.copied { border-color: var(--green); color: var(--green); }
+        .btn-tiny:hover { border-color: var(--cyan); color: var(--cyan); }
+        .btn-tiny.copied { border-color: var(--green); color: var(--green); }
 
-        .empty {
+        .expiry-badge {
+            position: absolute;
+            top: 0.4rem;
+            left: 0.4rem;
             font-family: 'Share Tech Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.5rem;
+            padding: 0.15rem 0.4rem;
+            background: var(--danger);
+            color: white;
+        }
+
+        /* UPLOAD RAPIDE DANS DOSSIER */
+        .quick-upload-zone {
+            border: 1px dashed var(--border);
+            aspect-ratio: 1;
+            max-width: 120px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            vertical-align: top;
+        }
+
+        .quick-upload-zone:hover {
+            border-color: var(--cyan);
+            background: rgba(79,195,247,0.03);
+        }
+
+        .quick-upload-zone input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .quick-upload-icon {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.5rem;
             color: var(--text-dim);
-            text-align: center;
-            padding: 2rem;
-            opacity: 0.4;
+            opacity: 0.3;
+        }
+
+        .empty-folder {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            opacity: 0.3;
+            padding: 1rem 0;
         }
     </style>
 </head>
@@ -382,109 +416,123 @@
 <div class="scan-overlay" id="scanOverlay">
     <div class="scan-text">TRANSFERT EN COURS — NE PAS INTERROMPRE</div>
     <div class="scan-bar"></div>
-    <div class="scan-text" style="font-size:0.6rem; opacity:0.5;">Analyse ADN du fichier... Confinement vérifié...</div>
+    <div class="scan-text" style="font-size:0.6rem; opacity:0.5;">Confinement vérifié — Enregistrement en cours...</div>
 </div>
 
 <nav>
-    <div class="nav-logo">
-        <img src="/static/cadcrwh.png" alt="CAD">
-    </div>
-    <div class="nav-info">
-        <div>
-            <span class="agent">{{ username }}</span>
-            <span class="role-badge {% if role == 'admin' %}admin{% endif %}">{{ role }}</span>
+    <div class="nav-left">
+        <div class="nav-logo"><img src="/static/cadcrwh.png" alt="CAD"></div>
+        <div class="nav-stats">
+            <span>{{ total }}</span> fichier(s) actif(s)
+            {% if expiring_soon > 0 %}
+            — <span class="warn">{{ expiring_soon }}</span> expire bientôt
+            {% endif %}
         </div>
-        <div style="margin-top:0.3rem;">Archives Centrales — Accès Autorisé</div>
+    </div>
+    <div class="nav-right">
+        <div class="nsfw-toggle" id="nsfwToggle" onclick="toggleNSFW()">NSFW OFF</div>
+        <div class="nav-agent">Agent <span>{{ username }}</span></div>
+        <a href="/login" class="btn-logout">Déconnexion</a>
     </div>
 </nav>
 
 <main>
-    <!-- RAPPORT -->
-    <div class="rapport">
-        <div class="stat-card">
-            <div class="stat-label">Fichiers actifs</div>
-            <div class="stat-value">{{ files | length }}</div>
-            <div class="stat-sub">Tous statuts confondus</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Expiration imminente</div>
-            <div class="stat-value" style="color: var(--danger);">
-                {{ files | selectattr('expires_at') | list | length }}
-            </div>
-            <div class="stat-sub">Dans moins de 24h — Intervention recommandée</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-label">Statut système</div>
-            <div class="stat-value" style="font-size:1rem; padding-top:0.4rem;">EN LIGNE</div>
-            <div class="stat-sub">Aucune anomalie détectée. Pour l'instant.</div>
-        </div>
-    </div>
-
-    <!-- FLAVOR -->
     <div class="flavor" id="flavorMsg"></div>
 
-    <!-- UPLOAD -->
-    <div class="section-title">— Transfert de fichier</div>
+    <!-- UPLOAD PRINCIPAL -->
+    <div class="section-title">— Nouveau transfert</div>
     <div class="upload-card">
-        <form id="uploadForm">
-            <div class="upload-form">
-                <div class="field">
-                    <label>Dossier cible</label>
-                    <input type="text" id="folder" placeholder="ex: operation-chimere" required>
-                </div>
-                <div class="field">
-                    <label>Durée de conservation</label>
-                    <select id="expiration">
-                        <option value="24h">24 heures</option>
-                        <option value="7d" selected>7 jours</option>
-                        <option value="30d">30 jours</option>
-                        {% if role == 'admin' %}
-                        <option value="permanent">Permanent</option>
-                        {% endif %}
-                    </select>
-                </div>
+        <div class="upload-row">
+            <div class="field">
+                <label>Dossier cible</label>
+                <input type="text" id="mainFolder" placeholder="ex: operation-chimere">
             </div>
-            <div class="upload-zone" id="uploadZone">
-                <input type="file" id="fileInput" accept="image/*,video/mp4,video/webm">
-                <div class="upload-zone-text">
-                    Déposer un fichier ou cliquer pour sélectionner
-                    <span>Images : jpg, png, webp, gif — Vidéos : mp4, webm</span>
-                </div>
+            <div class="field">
+                <label>Conservation</label>
+                <select id="mainExpiration">
+                    <option value="24h">24 heures</option>
+                    <option value="7d" selected>7 jours</option>
+                    <option value="30d">30 jours</option>
+                    {% if role == 'admin' %}
+                    <option value="permanent">Permanent</option>
+                    {% endif %}
+                </select>
             </div>
-        </form>
+            <div class="field">
+                <label>Contenu</label>
+                <select id="mainNsfw">
+                    <option value="false">Standard</option>
+                    <option value="true">NSFW</option>
+                </select>
+            </div>
+        </div>
+        <div class="upload-zone" id="mainUploadZone">
+            <input type="file" id="mainFileInput" accept="image/*,video/mp4,video/webm">
+            <div class="upload-zone-text">Déposer un fichier ou cliquer pour sélectionner</div>
+        </div>
     </div>
 
-    <!-- FILES -->
-    <div class="section-title">— Fichiers archivés</div>
-    <div class="files-list">
-        {% if files %}
-            {% for f in files %}
-            {% set delta = (f.expires_at - now).total_seconds() if f.expires_at else None %}
-            <div class="file-row {% if delta and delta < 86400 %}expiring{% endif %}">
-                <div class="file-name">
-                    {{ f.original_name }}
-                    <span>{{ f.folder }} — {{ f.filetype }}</span>
+    <!-- DOSSIERS -->
+    <div class="section-title">— Dossiers classifiés</div>
+
+    {% if folders %}
+    <div class="folder-list">
+        {% for folder_name, folder_files in folders.items() %}
+        <div class="folder-item" id="folder-{{ loop.index }}">
+            <div class="folder-header" onclick="toggleFolder('folder-{{ loop.index }}')">
+                <span class="folder-name">{{ folder_name }}</span>
+                <div class="folder-meta">
+                    <span class="folder-count">{{ folder_files|length }} fichier(s)</span>
+                    <span class="folder-arrow">▼</span>
                 </div>
-                <div class="file-expiry {% if not f.expires_at %}permanent{% elif delta and delta < 86400 %}soon{% endif %}">
-                    {% if not f.expires_at %}
-                        Permanent
-                    {% else %}
-                        Exp. {{ f.expires_at.strftime('%d/%m %H:%M') }}
-                    {% endif %}
-                </div>
-                <button class="btn" onclick="copyLink('/images/{{ f.folder }}/{{ f.filename }}', this)">
-                    Copier lien
-                </button>
             </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty">Aucun fichier archivé — Division Archives en attente de données</div>
-        {% endif %}
+            <div class="folder-body">
+                <div class="masonry" id="masonry-{{ loop.index }}">
+                    {% for f in folder_files %}
+                    {% set delta = (f.expires_at - now).total_seconds() if f.expires_at else None %}
+                    <div class="masonry-item {% if f.nsfw %}nsfw-blur{% endif %}" 
+                         onclick="handleImageClick(this, '{{ f.nsfw }}')">
+                        {% if delta and delta < 86400 %}
+                        <div class="expiry-badge">EXPIRE BIENTÔT</div>
+                        {% endif %}
+                        {% if f.filetype == 'image' %}
+                        <img src="/images/classified/{{ folder_name }}/{{ f.filename }}" 
+                             alt="{{ f.original_name }}"
+                             loading="lazy">
+                        {% else %}
+                        <div style="background:#0a1628; aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; font-size:0.6rem; color:#4a6a8a;">
+                            VIDEO — {{ f.original_name }}
+                        </div>
+                        {% endif %}
+                        <div class="masonry-item-overlay">
+                            <button class="btn-tiny" onclick="event.stopPropagation(); copyLink('/images/classified/{{ folder_name }}/{{ f.filename }}', this)">Copier lien</button>
+                            <a class="btn-tiny" href="/images/classified/{{ folder_name }}/{{ f.filename }}" target="_blank" onclick="event.stopPropagation()">Ouvrir</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- UPLOAD RAPIDE -->
+                <div class="quick-upload-zone">
+                    <input type="file" 
+                           accept="image/*,video/mp4,video/webm"
+                           onchange="quickUpload(this, '{{ folder_name }}')">
+                    <span class="quick-upload-icon">+</span>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
     </div>
+    {% else %}
+    <div style="font-family:'Share Tech Mono',monospace; font-size:0.7rem; color:var(--text-dim); text-align:center; padding:3rem; opacity:0.3;">
+        Aucun dossier classifié — Commencez par uploader un fichier ci-dessus
+    </div>
+    {% endif %}
+
 </main>
 
 <script>
-    // Flavor messages
+    // Flavor
     const flavors = [
         "Aucune anomalie détectée dans le secteur. Surveillance maintenue.",
         "Rapport journalier : 3 sujets en cours d'analyse. Résultats attendus sous 48h.",
@@ -493,72 +541,120 @@
         "Mise à jour système effectuée. Les cookies quantiques ont été recalibrés.",
         "Alerte niveau 0 : Quelqu'un a encore mangé le repas de quelqu'un d'autre au réfrigérateur de la base.",
         "Tous les sujets sont confinés. Enfin, normalement.",
+        "Division Recherche : Résultats de l'expérience 7-B jugés... satisfaisants. Dans l'ensemble.",
     ];
-    document.getElementById('flavorMsg').textContent =
-        flavors[Math.floor(Math.random() * flavors.length)];
+    document.getElementById('flavorMsg').textContent = flavors[Math.floor(Math.random() * flavors.length)];
 
-    // Copy link
+    // Accordion
+    function toggleFolder(id) {
+        document.getElementById(id).classList.toggle('open');
+    }
+
+    // NSFW
+    let nsfwActive = localStorage.getItem('nsfw') === 'true';
+    updateNSFW();
+
+    function toggleNSFW() {
+        nsfwActive = !nsfwActive;
+        localStorage.setItem('nsfw', nsfwActive);
+        updateNSFW();
+    }
+
+    function updateNSFW() {
+        const toggle = document.getElementById('nsfwToggle');
+        const items = document.querySelectorAll('.masonry-item');
+        if (nsfwActive) {
+            toggle.textContent = 'NSFW ON';
+            toggle.classList.add('active');
+            items.forEach(i => i.classList.remove('nsfw-blur'));
+        } else {
+            toggle.textContent = 'NSFW OFF';
+            toggle.classList.remove('active');
+            items.forEach(i => {
+                if (i.dataset.nsfw === 'true') i.classList.add('nsfw-blur');
+            });
+        }
+    }
+
+    function handleImageClick(el, isNsfw) {
+        if (!nsfwActive && isNsfw === 'True') {
+            el.classList.remove('nsfw-blur');
+            setTimeout(() => el.classList.add('nsfw-blur'), 3000);
+        }
+    }
+
+    // Copy
     function copyLink(path, btn) {
-        const url = window.location.origin + path;
-        navigator.clipboard.writeText(url).then(() => {
+        navigator.clipboard.writeText(window.location.origin + path).then(() => {
             btn.textContent = 'Copié ✓';
             btn.classList.add('copied');
-            setTimeout(() => {
-                btn.textContent = 'Copier lien';
-                btn.classList.remove('copied');
-            }, 2000);
+            setTimeout(() => { btn.textContent = 'Copier lien'; btn.classList.remove('copied'); }, 2000);
         });
     }
 
-    // Upload
-    const fileInput = document.getElementById('fileInput');
+    // Upload principal
     const scanOverlay = document.getElementById('scanOverlay');
 
-    fileInput.addEventListener('change', async () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-
-        const folder = document.getElementById('folder').value;
-        const expiration = document.getElementById('expiration').value;
-
-        if (!folder) {
-            alert('Spécifiez un dossier cible.');
-            return;
-        }
-
+    async function doUpload(file, folder, expiration, nsfw) {
+        if (!folder) { alert('Spécifiez un dossier cible.'); return; }
         scanOverlay.classList.add('active');
-
         const formData = new FormData();
         formData.append('file', file);
-
         try {
-            const res = await fetch(`/files/upload?folder=${folder}&expiration=${expiration}`, {
+            const res = await fetch(`/files/upload?folder=${folder}&expiration=${expiration}&nsfw=${nsfw}`, {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: { 'Authorization': `Bearer ${getCookie('token')}` }
             });
-
             if (res.ok) {
-                setTimeout(() => location.reload(), 1000);
+                setTimeout(() => location.reload(), 800);
             } else {
+                const err = await res.json();
                 scanOverlay.classList.remove('active');
-                alert('Erreur lors du transfert.');
+                alert(err.detail || 'Erreur transfert.');
             }
         } catch(e) {
             scanOverlay.classList.remove('active');
             alert('Erreur réseau.');
         }
+    }
+
+    document.getElementById('mainFileInput').addEventListener('change', () => {
+        const file = document.getElementById('mainFileInput').files[0];
+        if (!file) return;
+        doUpload(
+            file,
+            document.getElementById('mainFolder').value,
+            document.getElementById('mainExpiration').value,
+            document.getElementById('mainNsfw').value
+        );
     });
 
-    // Drag and drop
-    const zone = document.getElementById('uploadZone');
-    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
-    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
-    zone.addEventListener('drop', e => {
+    // Drag and drop principal
+    const mainZone = document.getElementById('mainUploadZone');
+    mainZone.addEventListener('dragover', e => { e.preventDefault(); mainZone.classList.add('drag'); });
+    mainZone.addEventListener('dragleave', () => mainZone.classList.remove('drag'));
+    mainZone.addEventListener('drop', e => {
         e.preventDefault();
-        zone.classList.remove('drag');
-        fileInput.files = e.dataTransfer.files;
-        fileInput.dispatchEvent(new Event('change'));
+        mainZone.classList.remove('drag');
+        const fi = document.getElementById('mainFileInput');
+        fi.files = e.dataTransfer.files;
+        fi.dispatchEvent(new Event('change'));
     });
+
+    // Upload rapide dans dossier
+    async function quickUpload(input, folder) {
+        const file = input.files[0];
+        if (!file) return;
+        doUpload(file, folder, 'permanent', 'false');
+    }
+
+    // Cookie helper
+    function getCookie(name) {
+        return document.cookie.split(';')
+            .map(c => c.trim().split('='))
+            .find(c => c[0] === name)?.[1] || '';
+    }
 </script>
 </body>
 </html>

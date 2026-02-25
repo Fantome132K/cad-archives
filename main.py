@@ -54,16 +54,35 @@ def dashboard(request: Request, db=Depends(get_db_main)):
 
     from database import File as FileModel
     from datetime import datetime
-    files_list = db.query(FileModel).filter(
+
+    files = db.query(FileModel).filter(
         FileModel.uploaded_by == user_data["sub"],
         FileModel.is_quick_drop == False
     ).all()
 
     now = datetime.utcnow()
+
+    # Grouper par dossier
+    folders = {}
+    for f in files:
+        if not f.expires_at or f.expires_at > now:
+            folder = f.folder or "sans-dossier"
+            if folder not in folders:
+                folders[folder] = []
+            folders[folder].append(f)
+
+    total = sum(len(v) for v in folders.values())
+    expiring_soon = sum(
+        1 for f in files
+        if f.expires_at and (f.expires_at - now).total_seconds() < 86400
+    )
+
     return templates.TemplateResponse("dashboard.html", {
         "request": request,
         "username": user_data["sub"],
         "role": user_data["role"],
-        "files": files_list,
+        "folders": folders,
+        "total": total,
+        "expiring_soon": expiring_soon,
         "now": now
     })
