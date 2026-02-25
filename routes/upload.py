@@ -42,13 +42,21 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    if not credentials:
-        return None
-    try:
-        return decode_token(credentials.credentials)
-    except:
-        return None
+def get_current_user(request: Request, credentials: HTTPAuthorizationCredentials = Depends(security)):
+    # Essaie d'abord le header Authorization
+    if credentials:
+        try:
+            return decode_token(credentials.credentials)
+        except:
+            pass
+    # Sinon essaie le cookie
+    token = request.cookies.get("token")
+    if token:
+        try:
+            return decode_token(token)
+        except:
+            pass
+    return None
 
 @router.post("/upload")
 @limiter.limit("10/hour")
