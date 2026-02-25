@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAD — Archives Centrales</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #060d1a;
+            --surface: #0a1628;
+            --border: #1a3a5c;
+            --cyan: #4fc3f7;
+            --cyan-dim: #1a4a6b;
+            --text: #c8dff0;
+            --text-dim: #4a6a8a;
+            --danger: #ef4444;
+            --green: #22c55e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Barlow', sans-serif;
+            min-height: 100vh;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(79,195,247,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(79,195,247,0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .nav-logo img { height: 28px; opacity: 0.9; }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .nav-tagline {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            color: var(--text-dim);
+            letter-spacing: 0.2em;
+            opacity: 0.5;
+        }
+
+        .nav-login {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+        }
+
+        .nav-login:hover { opacity: 1; color: var(--cyan); }
+
+        main {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-dim);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        .hero-sub {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+            line-height: 1.7;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .hero-sub span {
+            color: var(--cyan);
+            opacity: 0.7;
+        }
+
+        /* UPLOAD ZONE */
+        .upload-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .upload-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+        }
+
+        .upload-zone {
+            padding: 3rem 2rem;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.2s;
+        }
+
+        .upload-zone:hover, .upload-zone.drag {
+            background: rgba(79,195,247,0.03);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+
+        .upload-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            opacity: 0.3;
+        }
+
+        .upload-zone-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+        }
+
+        .upload-zone-text span {
+            display: block;
+            font-size: 0.55rem;
+            margin-top: 0.5rem;
+            opacity: 0.4;
+        }
+
+        .upload-options {
+            padding: 1rem 2rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .upload-options label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            letter-spacing: 0.15em;
+        }
+
+        select {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            padding: 0.35rem 0.6rem;
+            outline: none;
+        }
+
+        select:focus { border-color: var(--cyan); }
+        select option { background: var(--bg); }
+
+        /* SCAN OVERLAY */
+        .scan-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(6,13,26,0.9);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .scan-overlay.active { display: flex; }
+
+        .scan-text {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--cyan);
+            letter-spacing: 0.3em;
+            animation: flicker 0.5s infinite;
+        }
+
+        .scan-bar {
+            width: 300px;
+            height: 2px;
+            background: var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scan-bar::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: var(--cyan);
+            animation: scan 1.5s ease-in-out infinite;
+        }
+
+        @keyframes scan { 0% { left: -100%; } 100% { left: 100%; } }
+        @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+
+        /* SESSION */
+        .session-info {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-dim);
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            opacity: 0.5;
+        }
+
+        .session-info a {
+            color: var(--cyan);
+            text-decoration: none;
+            opacity: 0.7;
+        }
+
+        .session-info a:hover { opacity: 1; }
+
+        /* FILES */
+        .section-title {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.62rem;
+            color: var(--text-dim);
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .files-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .file-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .file-card:hover { border-color: var(--cyan-dim); }
+
+        .file-preview {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            display: block;
+        }
+
+        .file-card-info {
+            padding: 0.5rem;
+        }
+
+        .file-card-name {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.58rem;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-card-actions {
+            display: flex;
+            gap: 0.4rem;
+            margin-top: 0.4rem;
+        }
+
+        .btn-small {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.55rem;
+            padding: 0.2rem 0.5rem;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-small:hover { border-color: var(--cyan); color: var(--cyan); }
+        .btn-small.copied { border-color: var(--green); color: var(--green); }
+
+        .empty {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--text-dim);
+            text-align: center;
+            padding: 2rem;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+
+<div class="scan-overlay" id="scanOverlay">
+    <div class="scan-text">TRANSFERT EN COURS</div>
+    <div class="scan-bar"></div>
+    <div class="scan-text" style="font-size:0.6rem; opacity:0.5;">Analyse en cours — Division Recherche CAD</div>
+</div>
+
+<nav>
+    <div class="nav-logo">
+        <img src="/static/cadcrwh.png" alt="CAD">
+    </div>
+    <div class="nav-right">
+        <span class="nav-tagline">Contain · Analyze · Duplicate</span>
+        {% if user %}
+            <a href="/dashboard" class="nav-login">{{ user.sub }} — Accès Classified →</a>
+        {% else %}
+            <a href="/login" class="nav-login">Accès restreint</a>
+        {% endif %}
+    </div>
+</nav>
+
+<main>
+    <div class="hero">
+        <div class="hero-title">Archives Centrales — Portail de Dépôt</div>
+        <p class="hero-sub">
+            Bienvenue. Déposez vos fichiers ci-dessous.<br>
+            Ils seront <span>analysés, catalogués</span> et conservés selon la durée indiquée.<br>
+            Aucun compte requis. Aucune question posée.
+            <br><small style="opacity:0.4; font-size:0.75rem;">Enfin, presque.</small>
+        </p>
+    </div>
+
+    <div class="upload-card">
+        <div class="upload-zone" id="uploadZone">
+            <input type="file" id="fileInput" accept="image/*,video/mp4,video/webm">
+            <div class="upload-icon">⬆</div>
+            <div class="upload-zone-text">
+                Déposer un fichier ou cliquer pour sélectionner
+                <span>Images jusqu'à 50Mo · Vidéos jusqu'à 500Mo</span>
+            </div>
+        </div>
+        <div class="upload-options">
+            <label>Conservation :</label>
+            <select id="expiration">
+                <option value="24h">24 heures</option>
+                <option value="7d" selected>7 jours</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="session-info">
+        <span>Session · {{ session_id[:8] }}...</span>
+        <a href="/session/{{ session_id }}" target="_blank">Lien de session →</a>
+    </div>
+
+    {% if files %}
+    <div class="section-title">— Fichiers de cette session</div>
+    <div class="files-grid">
+        {% for f in files %}
+        <div class="file-card">
+            {% if f.filetype == 'image' %}
+            <img class="file-preview" src="/images/quickdrop/{{ f.filename }}" alt="{{ f.original_name }}" onclick="window.open(this.src)">
+            {% else %}
+            <div class="file-preview" style="background:#0a1628; display:flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; font-size:0.6rem; color:#4a6a8a;">
+                VIDEO
+            </div>
+            {% endif %}
+            <div class="file-card-info">
+                <div class="file-card-name">{{ f.original_name }}</div>
+                <div class="file-card-actions">
+                    <button class="btn-small" onclick="copyLink('/images/quickdrop/{{ f.filename }}', this)">Copier</button>
+                    <a class="btn-small" href="/images/quickdrop/{{ f.filename }}" target="_blank">Ouvrir</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">Aucun fichier déposé lors de cette session</div>
+    {% endif %}
+</main>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const scanOverlay = document.getElementById('scanOverlay');
+    const zone = document.getElementById('uploadZone');
+
+    fileInput.addEventListener('change', async () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+
+        const expiration = document.getElementById('expiration').value;
+        scanOverlay.classList.add('active');
+
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(`/files/upload?expiration=${expiration}`, {
+                method: 'POST',
+                body: formData
+            });
+
+            if (res.ok) {
+                setTimeout(() => location.reload(), 800);
+            } else {
+                const err = await res.json();
+                scanOverlay.classList.remove('active');
+                alert(err.detail || 'Erreur lors du transfert.');
+            }
+        } catch(e) {
+            scanOverlay.classList.remove('active');
+            alert('Erreur réseau.');
+        }
+    });
+
+    zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag'); });
+    zone.addEventListener('dragleave', () => zone.classList.remove('drag'));
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag');
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+    });
+
+    function copyLink(path, btn) {
+        navigator.clipboard.writeText(window.location.origin + path).then(() => {
+            btn.textContent = 'Copié ✓';
+            btn.classList.add('copied');
+            setTimeout(() => { btn.textContent = 'Copier'; btn.classList.remove('copied'); }, 2000);
+        });
+    }
+</script>
+</body>
+</html>
