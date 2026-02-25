@@ -437,6 +437,11 @@
 </nav>
 
 <main>
+    <datalist id="folders-list">
+        {% for folder_name in folders.keys() %}
+        <option value="{{ folder_name }}">
+        {% endfor %}
+    </datalist>
     <div class="flavor" id="flavorMsg"></div>
 
     <!-- UPLOAD PRINCIPAL -->
@@ -445,7 +450,7 @@
         <div class="upload-row">
             <div class="field">
                 <label>Dossier cible</label>
-                <input type="text" id="mainFolder" placeholder="ex: operation-chimere">
+                <input type="text" id="mainFolder" placeholder="ex: operation-chimere" list="folders-list">
             </div>
             <div class="field">
                 <label>Conservation</label>
@@ -505,7 +510,10 @@
                         </div>
                         {% endif %}
                         <div class="masonry-item-overlay">
-                            <button class="btn-tiny" onclick="event.stopPropagation(); copyLink('/images/classified/{{ folder_name }}/{{ f.filename }}', this)">Copier lien</button>
+                            <button class="btn-tiny" 
+                                onclick="event.stopPropagation(); copyLink('/images/classified/{{ folder_name }}/{{ f.filename }}', this)">Copier lien</button>
+                            <button class="btn-tiny" style="color:var(--danger); border-color:var(--danger);" 
+                                onclick="event.stopPropagation(); deleteFile({{ f.id }}, this)">Supprimer</button>
                             <a class="btn-tiny" href="/images/classified/{{ folder_name }}/{{ f.filename }}" target="_blank" onclick="event.stopPropagation()">Ouvrir</a>
                         </div>
                     </div>
@@ -515,8 +523,8 @@
                 <!-- UPLOAD RAPIDE -->
                 <div class="quick-upload-zone">
                     <input type="file" 
-                           accept="image/*,video/mp4,video/webm"
-                           onchange="quickUpload(this, '{{ folder_name }}')">
+                        accept="image/*,video/mp4,video/webm"
+                        onchange="quickUpload(this, '{{ folder_name }}', document.getElementById('mainExpiration').value)">
                     <span class="quick-upload-icon">+</span>
                 </div>
             </div>
@@ -595,6 +603,16 @@
     // Upload principal
     const scanOverlay = document.getElementById('scanOverlay');
 
+    async function deleteFile(id, btn) {
+        if (!confirm('Supprimer ce fichier ? Cette action est irréversible.')) return;
+        const res = await fetch(`/files/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+            btn.closest('.masonry-item').remove();
+        } else {
+            alert('Erreur lors de la suppression.');
+        }
+    }
+
     async function doUpload(file, folder, expiration, nsfw) {
         if (!folder) { alert('Spécifiez un dossier cible.'); return; }
         scanOverlay.classList.add('active');
@@ -643,10 +661,10 @@
     });
 
     // Upload rapide dans dossier
-    async function quickUpload(input, folder) {
+    async function quickUpload(input, folder, expiration) {
         const file = input.files[0];
         if (!file) return;
-        doUpload(file, folder, 'permanent', 'false');
+        doUpload(file, folder, expiration || '7d', 'false');
     }
 
     // Cookie helper
