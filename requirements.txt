@@ -6,3 +6,4 @@ python-jose[cryptography]
 python-multipart
 apscheduler
 jinja2
+slowapi

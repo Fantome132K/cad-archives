@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
@@ -27,8 +27,19 @@ class File(Base):
     id = Column(Integer, primary_key=True)
     filename = Column(String, nullable=False)
     original_name = Column(String, nullable=False)
-    folder = Column(String, nullable=False)
+    folder = Column(String, nullable=True)
     filetype = Column(String, nullable=False)
-    uploaded_by = Column(Integer, nullable=False)
+    uploaded_by = Column(String, nullable=False)
+    is_quick_drop = Column(Boolean, default=False)
+    session_id = Column(String, nullable=True)
     uploaded_at = Column(DateTime, default=datetime.utcnow)
     expires_at = Column(DateTime, nullable=True)
+    nsfw = Column(Boolean, default=False)
+
+class Session(Base):
+    __tablename__ = "sessions"
+
+    id = Column(Integer, primary_key=True)
+    session_id = Column(String, unique=True, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    last_seen = Column(DateTime, default=datetime.utcnow)
